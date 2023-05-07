@@ -11,33 +11,3 @@
     @apply outline-none outline-offset-2 outline-indigo-600;
   }
 }
-
-@layer components {
-  /* Auth Page specifics: (/auth/${action}), action = login | register | forgot-password */
-  .auth-page-layout {
-    @apply mb-20 mt-10 grid place-items-center sm:mt-14 lg:mb-0;
-  }
-
-  .auth-page-input {
-    @apply rounded-md border border-zinc-300 bg-zinc-50 px-3 py-3 text-zinc-900 placeholder:text-zinc-400
-      dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-500;
-  }
-
-  .auth-page-divider {
-    @apply border-b border-zinc-300 dark:border-zinc-600;
-  }
-
-  .auth-page-submit {
-    @apply rounded-md border border-zinc-300 bg-indigo-600 px-2 py-3 text-xl font-bold text-zinc-50 hover:bg-indigo-500
-     active:bg-indigo-400 dark:border-none dark:bg-indigo-700 dark:hover:bg-indigo-600 dark:active:bg-indigo-500;
-  }
-
-  .auth-page-provider {
-    @apply rounded-md border border-zinc-300 bg-zinc-100 px-4 py-2 hover:bg-zinc-200 dark:border-zinc-600
-     dark:bg-zinc-800 hover:dark:bg-zinc-700;
-  }
-
-  .auth-page-link {
-    @apply w-fit self-center rounded-md hover:underline;
-  }
-}

@@ -1,9 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react"
-import Link from "next/link"
 import { Fragment, useState } from "react"
 
-export function ConfirmationSentModal() {
-  const [isOpen, setIsOpen] = useState(true)
+type ModalProps = {
+  children: React.ReactNode
+}
+
+export function Modal({ children }: ModalProps) {
+  const [isOpen, _] = useState(true)
 
   return (
     <Transition as={Fragment} appear show={isOpen}>
@@ -30,26 +33,7 @@ export function ConfirmationSentModal() {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel
-                className="absolute left-1/2 top-1/3 w-full max-w-md
-              -translate-x-1/2 -translate-y-1/2 transform rounded-md border-zinc-200 bg-zinc-100 px-6 
-              py-8 transition-all dark:border-zinc-600 dark:bg-zinc-800"
-              >
-                <Dialog.Title as="h3" className="text-xl font-bold sm:text-2xl">
-                  Thank you for registering!
-                </Dialog.Title>
-                <Dialog.Description as="div">
-                  <p className="my-4 block text-xl font-semibold">
-                    Please check your email to confirm your account.
-                  </p>
-                  <Link
-                    href={"/"}
-                    className="my-12 rounded-md px-2 py-1 text-indigo-700 hover:underline dark:text-indigo-600"
-                  >
-                    Return to home
-                  </Link>
-                </Dialog.Description>
-              </Dialog.Panel>
+              {children}
             </Transition.Child>
           </div>
         </div>

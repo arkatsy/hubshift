@@ -1,7 +1,5 @@
 import { Bar } from "./bar"
 import { BrandWithOrWithoutLink as Brand } from "./brand"
-import * as Icons from "./icons"
-import LoadingSpinner from "./loadingSpinner"
-import { ConfirmationSentModal } from "./confirmationSentModal"
+import { Modal } from "./modal"
 
-export { Bar, Brand, Icons, LoadingSpinner, ConfirmationSentModal }
+export { Bar, Brand, Modal }

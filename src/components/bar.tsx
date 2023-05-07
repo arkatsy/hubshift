@@ -8,11 +8,6 @@ import { useContext } from "react"
 export const getServerSideProps: GetServerSideProps = async (ctxt) => {
   const supabase = createServerSupabaseClient<Database>(ctxt)
 
-  // const { data: session, error } = await supabase.auth.getSession()
-  // const res = await supaClient
-
-  // console.log("session", session)
-
   return {
     props: {},
   }

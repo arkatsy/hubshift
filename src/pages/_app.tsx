@@ -33,7 +33,7 @@ const quicksand = Quicksand({
 const fontVariables = [open_sans, nunito_sans, quicksand].map((font) => font.variable).join(" ")
 
 // React query
-const queryClient = new QueryClient()
+export const queryClient = new QueryClient()
 
 // Theme
 // type Theme = "light" | "dark"
