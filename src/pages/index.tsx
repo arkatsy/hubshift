@@ -1,24 +1,22 @@
 import { useIsNewUser } from "@/hooks/useIsNewUser"
-import { Database } from "@/lib/dbtypes"
-import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import { GetServerSidePropsContext } from "next"
 import { useRouter } from "next/router"
 
 export async function getServerSideProps(ctxt: GetServerSidePropsContext) {
-  const supabase = createServerSupabaseClient<Database>(ctxt)
-
   return {
     props: {},
   }
 }
 
-export default function Home() {
+export default function FeedPage() {
   const supabase = useSupabaseClient()
-  const { data: isNewUser, isLoading, status, error } = useIsNewUser()
+  const { data: isNewUser, isLoading } = useIsNewUser(supabase)
   const router = useRouter()
 
-  if (!isLoading && isNewUser) {
+  // prevent redirect loop after creating a new users profile
+  let { fromWelcome } = router.query
+  if (!(fromWelcome === "true") && !isLoading && isNewUser) {
     router.push("/welcome")
   }
 

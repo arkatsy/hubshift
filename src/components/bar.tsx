@@ -1,8 +1,8 @@
 import { Brand } from "@/components"
-import { Database } from "@/lib/dbtypes"
-import { ThemeContext } from "@/pages/_app"
+import type { Database } from "@/lib/dbtypes"
+import { ThemeContext } from "@/lib/theme"
 import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
-import { GetServerSideProps } from "next"
+import type { GetServerSideProps } from "next"
 import { useContext } from "react"
 
 export const getServerSideProps: GetServerSideProps = async (ctxt) => {

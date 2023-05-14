@@ -5,11 +5,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { SessionContextProvider } from "@supabase/auth-helpers-react"
 import { Session } from "@supabase/auth-helpers-react"
 import { Open_Sans, Nunito_Sans, Quicksand } from "next/font/google"
-import { useState, createContext, useEffect } from "react"
+import { useState } from "react"
 import { Bar } from "@/components"
 import { twMerge } from "tailwind-merge"
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import { Database } from "@/lib/dbtypes"
+import { ThemeProvider } from "@/lib/theme"
 
 // Fonts
 const open_sans = Open_Sans({
@@ -33,58 +34,7 @@ const quicksand = Quicksand({
 const fontVariables = [open_sans, nunito_sans, quicksand].map((font) => font.variable).join(" ")
 
 // React query
-export const queryClient = new QueryClient()
-
-// Theme
-// type Theme = "light" | "dark"
-const enum Theme {
-  light = "light",
-  dark = "dark",
-}
-
-type ThemeContextType = {
-  theme: Theme
-  toggleTheme: () => void
-}
-
-const getTheme = (): Theme => {
-  if (typeof window === "undefined") {
-    return Theme.light
-  } else {
-    let theme = localStorage.getItem("theme") as Theme | null
-
-    if (!theme) {
-      theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? Theme.dark : Theme.light
-    }
-
-    return theme
-  }
-}
-
-export const ThemeContext = createContext<ThemeContextType>({
-  theme: Theme.light,
-  toggleTheme: () => {},
-})
-
-function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getTheme())
-
-  const toggleTheme = () => {
-    setTheme(theme === Theme.light ? Theme.dark : Theme.light)
-  }
-
-  useEffect(() => {
-    if (theme === Theme.dark) {
-      document.documentElement.classList.add(Theme.dark)
-      localStorage.setItem("theme", Theme.dark)
-    } else {
-      document.documentElement.classList.remove(Theme.dark)
-      localStorage.setItem("theme", Theme.light)
-    }
-  }, [theme])
-
-  return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
-}
+const queryClient = new QueryClient()
 
 // Layouts
 const APP_PADDING = {

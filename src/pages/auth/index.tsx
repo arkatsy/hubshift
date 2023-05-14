@@ -1,10 +1,10 @@
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import { Auth } from "@supabase/auth-ui-react"
 import { useContext, useEffect, useState } from "react"
-import { ThemeContext } from "../_app"
+import { ThemeContext } from "@/lib/theme"
 import { HubShiftTheme } from "@/lib/auth-ui-theme"
 import { Brand } from "@/components"
-import { GetServerSidePropsContext } from "next"
+import { type GetServerSidePropsContext } from "next"
 import { getServerAuthStatus } from "@/lib/helpers"
 
 export async function getServerSideProps(ctxt: GetServerSidePropsContext) {

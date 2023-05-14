@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "types": "supabase gen types typescript > src/lib/dbtypes.ts"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",
@@ -24,6 +25,7 @@
     "autoprefixer": "10.4.14",
     "eslint": "8.39.0",
     "eslint-config-next": "13.4.0",
+    "lodash.debounce": "^4.0.8",
     "next": "13.4.0",
     "postcss": "8.4.23",
     "react": "18.2.0",
@@ -36,6 +38,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.7",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",
     "supabase": "^1.54.5"
