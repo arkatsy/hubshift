@@ -38,7 +38,7 @@ const queryClient = new QueryClient()
 
 // Layouts
 const APP_PADDING = {
-  bar: "py-5 px-4 md:px-8",
+  bar: "px-4 md:px-8",
   content: "px-4 md:px-8",
 }
 
@@ -53,7 +53,7 @@ function TopBarLayout({ children }: LayoutBaseProps) {
 function Layout({ children }: LayoutBaseProps) {
   return (
     <div className="font-sans">
-      <div className="sticky top-0 flex justify-center border-b border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+      <div className="sticky top-0 flex h-16 items-center justify-center border-b border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
         <TopBarLayout>
           <Bar />
         </TopBarLayout>
