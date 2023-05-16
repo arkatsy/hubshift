@@ -98,7 +98,7 @@ export type ProfileData = {
 }
 
 export default function WelcomePage({ username }: WelcomePageProps) {
-  const { data: avatarBlob, refetch } = useGenDefaultAvatar(username)
+  const { data: avatarBlob, refetch: generateAvatar } = useGenDefaultAvatar(username)
   const supabase = useSupabaseClient<Database>()
 
   const router = useRouter()
@@ -129,42 +129,36 @@ export default function WelcomePage({ username }: WelcomePageProps) {
   useEffect(() => {
     const providerAvatar = user?.user_metadata.avatar_url
     if (user && !providerAvatar) {
-      refetch()
+      generateAvatar()
     } else if (user && providerAvatar) {
       setProfileData((prev) => ({
         ...prev,
         avatar_url: providerAvatar,
       }))
     }
-  }, [user, refetch])
+  }, [user, generateAvatar])
 
   // Handle avatar blobs
   useEffect(() => {
+    let url = ""
+
     if (avatarBlob) {
-      const url = URL.createObjectURL(avatarBlob)
-      setProfileData((prev) => {
-        return {
-          ...prev,
-          avatar_url: url,
-        }
-      })
-
-      return () => URL.revokeObjectURL(url)
+      url = URL.createObjectURL(avatarBlob)
+      setAvatarBlobFromStep2(avatarBlob)
     }
-  }, [avatarBlob])
-
-  useEffect(() => {
     if (avatarBlobFromStep2) {
-      const url = URL.createObjectURL(avatarBlobFromStep2)
-      setProfileData((prev) => {
-        return {
-          ...prev,
-          avatar_url: url,
-        }
-      })
-      return () => URL.revokeObjectURL(url)
+      url = URL.createObjectURL(avatarBlobFromStep2)
+      setAvatarBlobFromStep2(avatarBlobFromStep2)
     }
-  }, [avatarBlobFromStep2])
+
+    setProfileData((prev) => {
+      return {
+        ...prev,
+        avatar_url: url,
+      }
+    })
+    return () => URL.revokeObjectURL(url)
+  }, [avatarBlob, avatarBlobFromStep2])
 
   // Navigation effects
   useEffect(() => {
@@ -192,8 +186,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         id: user!.id,
         avatarBlob: avatarBlobFromStep2!,
       })
-      // The ?fromWelcome=true query param is used to prevent redirection loop
-      // Could be used also to show a welcome message of some sort
+
       router.push("/?fromWelcome=true")
     }
 
