@@ -5,30 +5,44 @@ import { useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-rea
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { Fragment } from "react"
+import { Fragment, useContext, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
+import { SunIcon, MoonIcon } from "@heroicons/react/24/outline"
+import { ThemeContext } from "@/lib/theme"
 
 export function Bar() {
   const supabase = useSupabaseClient()
   const router = useRouter()
+
   const { isLoading, session } = useSessionContext()
+  const { data, isLoading: isProfileLoading } = useMyProfile(supabase, session)
 
   const isAuthPage = router.pathname === "/auth"
-
   const shouldShowSignIn = !isAuthPage && !isLoading && !session
-
-  const { data, isLoading: isProfileLoading } = useMyProfile(supabase, session)
   const shouldShowProfile = !isAuthPage && !isLoading && session && !isProfileLoading && data
+
+  // Theme toggle button
+  const { theme, toggleTheme } = useContext(ThemeContext)
+  const [themeIcon, remountThemeIcon] = useState(false)
+
+  useEffect(() => {
+    remountThemeIcon(true)
+  }, [])
 
   return (
     <div className="flex h-full items-center justify-between">
       <Brand isLink={true} />
-      <div>
+      <div className="flex gap-8">
+        {themeIcon && (
+          <button onClick={toggleTheme} className="rounded-md">
+            {theme === "dark" ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
+          </button>
+        )}
         {shouldShowSignIn && (
           <Link
-            className="rounded-md border border-indigo-600 px-4 py-2 text-lg font-semibold text-indigo-600
-            hover:bg-indigo-600 hover:text-white hover:underline focus:bg-indigo-600 focus:text-white focus:underline
-            md:px-5 md:py-3"
+            className="rounded-md border border-indigo-600 px-4 py-2 text-lg font-semibold
+            text-indigo-600 hover:bg-indigo-600 hover:text-white hover:underline active:bg-indigo-600 active:text-white
+            active:underline md:px-5 md:py-3"
             href="/auth"
           >
             Sign in
