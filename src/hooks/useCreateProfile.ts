@@ -1,25 +1,39 @@
-import type { ProfileData } from "@/pages/welcome"
-import { SupabaseClient } from "@supabase/supabase-js"
+import { type Database } from "@/lib/dbtypes"
+import { useSupabaseClient } from "@supabase/auth-helpers-react"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import { useMutation } from "@tanstack/react-query"
+import { useRouter } from "next/router"
+import { toast } from "react-hot-toast"
 
-export const useCreateProfile = (client: SupabaseClient) => {
+type Profile = {
+  profileData: {
+    username: string
+    avatar_url: string
+    bio: string
+  }
+  id: string
+  avatarBlob: Blob
+}
+
+export const useCreateProfile = () => {
+  const client = useSupabaseClient<Database>()
+  const router = useRouter()
+
   return useMutation({
     mutationKey: ["myprofile"],
-    mutationFn: ({
-      profileData,
-      id,
-      avatarBlob,
-    }: {
-      profileData: ProfileData
-      id: string
-      avatarBlob: Blob
-    }) => createProfile(client, profileData, id, avatarBlob),
+    mutationFn: ({ profileData, id, avatarBlob }: Profile) =>
+      createProfile(client, profileData, id, avatarBlob),
+    onSuccess: async () => {
+      toast.success("Profile created!")
+      toast.success("Redirecting to home page...")
+      router.push("/?fromWelcome=true")
+    },
   })
 }
 
 const createProfile = async (
-  client: SupabaseClient,
-  profileData: ProfileData,
+  client: SupabaseClient<Database>,
+  profileData: Profile["profileData"],
   id: string,
   avatarBlob: Blob
 ) => {

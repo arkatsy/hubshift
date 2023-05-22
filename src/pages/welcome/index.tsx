@@ -1,8 +1,12 @@
-import { Step1, Step2, Step3 } from "@/components"
-import { useCreateProfile, useGenDefaultAvatar } from "@/hooks"
+import { Spinner } from "@/components/spinner"
+import { Step1 } from "@/components/welcomeSteps/step1"
+import { Step2 } from "@/components/welcomeSteps/step2"
+import { Step3 } from "@/components/welcomeSteps/step3"
+import { useCreateProfile } from "@/hooks/useCreateProfile"
+import { useGenDefaultAvatar } from "@/hooks/useGenDefaultAvatar"
 import type { Database } from "@/lib/dbtypes"
 import { type SupabaseClient, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react"
+import { useUser } from "@supabase/auth-helpers-react"
 import { type GetServerSidePropsContext } from "next"
 import { useRouter } from "next/router"
 import { useEffect, useState, Fragment } from "react"
@@ -21,8 +25,8 @@ export type Step = {
 }
 
 const fetchUserIdWithId = async (client: SupabaseClient, id: string) => {
-  const res = await client.from("user_profiles").select("id").eq("id", id).single()
-  return !res?.data?.id
+  const { data } = await client.from("user_profiles").select("id").eq("id", id).single()
+  return !data?.id
 }
 
 const accountCreationSteps: Step[] = [
@@ -99,7 +103,6 @@ export type ProfileData = {
 
 export default function WelcomePage({ username }: WelcomePageProps) {
   const { data: avatarBlob, refetch: generateAvatar } = useGenDefaultAvatar(username)
-  const supabase = useSupabaseClient<Database>()
 
   const router = useRouter()
 
@@ -119,7 +122,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
   })
 
   // Submission mutation
-  const profileMutation = useCreateProfile(supabase)
+  const profileMutation = useCreateProfile()
 
   // Navigation (go back, next button)
   const [shouldShowGoBack, setShouldShowGoBack] = useState(false)
@@ -170,13 +173,14 @@ export default function WelcomePage({ username }: WelcomePageProps) {
   // Any validation should be done in the Step component that sets the profileData
   useEffect(() => setCanMoveToNextStep(Boolean(profileData.username)), [profileData.username])
 
-  const stepInformation = `Step ${
-    steps.findIndex((step) => step.status === "current") === -1
-      ? steps.length
-      : steps.findIndex((step) => step.status === "current") + 1
-  } of ${steps.length}`
+  const stepInformation = `Step ${steps.findIndex((step) => step.status === "current") === -1
+    ? steps.length
+    : steps.findIndex((step) => step.status === "current") + 1
+    } of ${steps.length}`
 
   const isLastStep = steps.findIndex((step) => step.status === "incomplete") === -1
+
+  const [showSpinner, setShowSpinner] = useState(false)
 
   // Next button handler
   const handleNextClick = () => {
@@ -186,8 +190,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         id: user!.id,
         avatarBlob: avatarBlobFromStep2!,
       })
-
-      router.push("/?fromWelcome=true")
+      setShowSpinner(true)
     }
 
     setSteps((prev) => {
@@ -203,8 +206,8 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         idx === currentStep
           ? { ...step, status: "complete" }
           : idx === nextStep
-          ? { ...step, status: "current" }
-          : step
+            ? { ...step, status: "current" }
+            : step
       )
     })
   }
@@ -219,8 +222,8 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         idx === currentStep
           ? { ...step, status: "incomplete" }
           : idx === prevStep
-          ? { ...step, status: "current" }
-          : step
+            ? { ...step, status: "current" }
+            : step
       )
     })
   }
@@ -263,6 +266,11 @@ export default function WelcomePage({ username }: WelcomePageProps) {
             )}
           </Fragment>
         ))}
+        {showSpinner && (
+          <div className="flex justify-center w-full">
+            <Spinner />
+          </div>
+        )}
         <div className="mt-16 flex w-full justify-between">
           <button
             disabled={!shouldShowGoBack}

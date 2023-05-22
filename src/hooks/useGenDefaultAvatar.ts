@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 
-const fetchCustomAvatar = async (username: string): Promise<Blob> =>
-  fetch(`https://ui-avatars.com/api/?name=${username}?background=random`).then((res) => res.blob())
-
 export const useGenDefaultAvatar = (username: string) => {
   return useQuery({
     queryKey: ["avatar", username],
@@ -11,3 +8,6 @@ export const useGenDefaultAvatar = (username: string) => {
     enabled: false,
   })
 }
+
+const fetchCustomAvatar = async (username: string): Promise<Blob> =>
+  fetch(`https://ui-avatars.com/api/?name=${username}?background=random`).then((res) => res.blob())

@@ -1,4 +1,4 @@
-import Link, { LinkProps } from "next/link"
+import Link, { type LinkProps } from "next/link"
 import { twMerge } from "tailwind-merge"
 
 const baseClasses = "rounded-md font-quicksand text-3xl font-bold tracking-tight"

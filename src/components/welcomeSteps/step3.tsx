@@ -1,6 +1,6 @@
-import { StepComponentProps } from "@/pages/welcome"
+import type { StepComponentProps } from "@/pages/welcome"
 
-export default function Step3({ data, setData }: StepComponentProps) {
+export const Step3 = ({ data, setData }: StepComponentProps) => {
   const onBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setData({ ...data, bio: e.target.value })
   }

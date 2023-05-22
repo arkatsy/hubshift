@@ -2,15 +2,14 @@ import "@/styles/globals.css"
 import type { AppProps } from "next/app"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { SessionContextProvider } from "@supabase/auth-helpers-react"
-import { Session } from "@supabase/auth-helpers-react"
+import { SessionContextProvider, type Session } from "@supabase/auth-helpers-react"
 import { Open_Sans, Nunito_Sans, Quicksand } from "next/font/google"
 import { useState } from "react"
-import { Bar } from "@/components"
-import { twMerge } from "tailwind-merge"
+import { Bar } from "@/components/bar"
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs"
-import { Database } from "@/lib/dbtypes"
+import type { Database } from "@/lib/dbtypes"
 import { ThemeProvider } from "@/lib/theme"
+import { Toaster } from "react-hot-toast"
 
 // Fonts
 const open_sans = Open_Sans({
@@ -35,7 +34,7 @@ const fontVariables = [open_sans, nunito_sans, quicksand].map((font) => font.var
 
 // React query
 const queryClient = new QueryClient()
-
+1
 // Layouts
 const APP_PADDING = {
   bar: "px-4 md:px-8",
@@ -47,25 +46,38 @@ type LayoutBaseProps = {
 }
 
 function TopBarLayout({ children }: LayoutBaseProps) {
-  return <header className={twMerge(APP_PADDING.bar, "w-full max-w-[1380px]")}>{children}</header>
+  return <header className={`${APP_PADDING.bar} w-full max-w-[1380px]`}>{children}</header>
 }
 
 function Layout({ children }: LayoutBaseProps) {
   return (
     <div className="font-sans">
-      <div className="sticky top-0 flex h-16 items-center justify-center border-b border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+      <div
+        className="sticky top-0 flex h-16 items-center justify-center border-b border-zinc-200 
+      bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800"
+      >
         <TopBarLayout>
           <Bar />
         </TopBarLayout>
       </div>
       <div className="flex justify-center">
         <div className="w-full max-w-[1380px]">
-          <div className={twMerge(APP_PADDING.content)}>{children}</div>
+          <div className={APP_PADDING.content}>{children}</div>
         </div>
       </div>
     </div>
   )
 }
+
+// Notifications
+const Notifications = () => (
+  <Toaster
+    position="bottom-right"
+    toastOptions={{
+      duration: 4000,
+    }}
+  />
+)
 
 // App
 export default function App({
@@ -91,6 +103,7 @@ export default function App({
             <div className={fontVariables}>
               <Layout>
                 <Component {...pageProps} />
+                <Notifications />
               </Layout>
             </div>
           </ThemeProvider>

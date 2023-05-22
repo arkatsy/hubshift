@@ -3,7 +3,7 @@ import { Auth } from "@supabase/auth-ui-react"
 import { useContext, useEffect, useState } from "react"
 import { ThemeContext } from "@/lib/theme"
 import { HubShiftTheme } from "@/lib/auth-ui-theme"
-import { Brand } from "@/components"
+import { BrandWithOrWithoutLink as Brand } from "@/components/brand"
 import { type GetServerSidePropsContext } from "next"
 import { getServerAuthStatus } from "@/lib/helpers"
 

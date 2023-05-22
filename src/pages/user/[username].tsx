@@ -1,7 +1,12 @@
-import { Database } from "@/lib/dbtypes"
+import { PostCard } from "@/components/postCard"
+import { useUserPosts } from "@/hooks/useUserPosts"
+import { type Database } from "@/lib/dbtypes"
 import { SupabaseClient, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import { GetServerSideProps, InferGetServerSidePropsType } from "next"
-import { useRouter } from "next/router"
+import Image from "next/image"
+import { useEffect } from "react"
+import { useInView } from "react-intersection-observer"
+import { Spinner } from "@/components/spinner"
 
 type RemoveObjectNullValues<Obj> = {
   [Key in keyof Obj]: Obj[Key] extends null ? never : Key
@@ -29,10 +34,7 @@ export const getServerSideProps: GetServerSideProps<UserProfilePageProps> = asyn
   const supabase = createServerSupabaseClient<Database>(ctxt)
   const query = ctxt.query as UserProfilePageQuery
 
-  const { data, error } = await getPublicProfile(supabase, query.username)
-  if (error) {
-    console.error(error)
-  }
+  const { data } = await getPublicProfile(supabase, query.username)
 
   if (!data) {
     return {
@@ -50,13 +52,50 @@ export const getServerSideProps: GetServerSideProps<UserProfilePageProps> = asyn
 export default function UserProfilePage({
   userProfile,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter()
+  const { ref, inView } = useInView()
+  const {
+    data,
+    hasNextPage,
+    fetchNextPage,
+  } = useUserPosts(userProfile.username)
+
+  // Fetching next page when we reach the bottom of the page
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage()
+    }
+  }, [inView, fetchNextPage])
 
   return (
-    <div className="">
-      <pre>
-        <code>{JSON.stringify(userProfile, null, 2)}</code>
-      </pre>
+    <div className="mt-12 flex flex-col items-center">
+      <Image
+        priority={true}
+        src={userProfile.avatar_url}
+        alt="Avatar"
+        width={100}
+        height={100}
+        className="select-none rounded-full w-24 h-24"
+      />
+      <p className="mt-4 text-2xl font-bold">@{userProfile.username}</p>
+      <p className="mb-8 mt-2 text-lg">{userProfile.bio}</p>
+      <div className="w-full">
+        {data && data.pages.map((page, idx) => (
+          <div key={idx} className="mb-8 flex flex-col gap-8">
+            {page.data?.map((post) => (
+              <PostCard
+                postId={post.id}
+                authorAvatar={userProfile.avatar_url}
+                authorUsername={userProfile.username}
+                key={post.id}
+                createdAt={post.created_at}
+                postTitle={post.title}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      {hasNextPage && <div ref={ref} className="flex justify-center w-full">
+        <Spinner /></div>}
     </div>
   )
 }

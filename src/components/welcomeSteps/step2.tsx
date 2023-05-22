@@ -1,7 +1,7 @@
 import Image from "next/image"
-import { StepComponentProps } from "@/pages/welcome"
+import type { StepComponentProps } from "@/pages/welcome"
 
-export default function Step2({ setBlobAvatar, data, setData }: StepComponentProps) {
+export const Step2 = ({ setBlobAvatar, data }: StepComponentProps) => {
   const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {

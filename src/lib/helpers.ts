@@ -1,7 +1,7 @@
-import { Session, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
-import { Database } from "./dbtypes"
-import { GetServerSidePropsContext } from "next"
-import { User } from "@supabase/supabase-js"
+import { type Session, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
+import type { Database } from "./dbtypes"
+import type { GetServerSidePropsContext } from "next"
+import type { User } from "@supabase/supabase-js"
 
 export async function getServerAuthStatus(ctxt: GetServerSidePropsContext): Promise<{
   session: Session | null

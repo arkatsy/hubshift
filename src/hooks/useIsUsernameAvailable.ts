@@ -1,4 +1,4 @@
-import { SupabaseClient } from "@supabase/supabase-js"
+import { type SupabaseClient } from "@supabase/supabase-js"
 import { useQuery } from "@tanstack/react-query"
 
 export const useIsUsernameAvailable = (client: SupabaseClient, username: string) => {
@@ -11,11 +11,11 @@ export const useIsUsernameAvailable = (client: SupabaseClient, username: string)
 }
 
 const fetchUsername = async (client: SupabaseClient, username: string) => {
-  const res = await client
+  const { data } = await client
     .from("user_profiles")
     .select("username")
     .eq("username", username)
     .single()
 
-  return { isAvailable: !res.data?.username, username }
+  return { isAvailable: !data?.username, username }
 }
