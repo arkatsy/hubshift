@@ -11,6 +11,7 @@ import { supabase as client } from "@/lib/supabaseClient"
 import type { PostWithAuthorDetails } from "@/lib/types"
 import { getRecentPosts } from "@/lib/helpers"
 import type { GetStaticProps, InferGetStaticPropsType } from "next"
+import { ArrowPathIcon as RefreshIcon } from "@heroicons/react/20/solid"
 
 type FeedPageProps = {
   posts: PostWithAuthorDetails[]
@@ -65,7 +66,7 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
   const { data: isNewUser, isLoading } = useIsNewUser()
   const router = useRouter()
 
-  const { data, fetchNextPage, hasNextPage } = useAllPosts(posts)
+  const { data, fetchNextPage, hasNextPage, isFetching } = useAllPosts(posts)
 
   const { ref, inView } = useInView()
 
@@ -101,9 +102,22 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
     router.push("/", undefined, { shallow: true })
   }
 
+  const handleRefreshFeed = () => queryClient.invalidateQueries(["allPosts"])
+
   return (
-    <main className="mt-8">
-      <h1 className="mb-12 text-4xl font-bold">Feed</h1>
+    <main className="mt-10">
+      <div className="mb-12 flex items-center gap-4">
+        <h1 className="text-4xl font-bold">Feed</h1>
+        <button
+          onClick={handleRefreshFeed}
+          className="rounded-full bg-zinc-200 px-2 py-2 hover:bg-zinc-300 active:bg-zinc-400"
+        >
+          <RefreshIcon className="h-5 w-5 text-zinc-800" />
+        </button>
+      </div>
+      {isFetching && (<div className="flex justify-center w-full pt-2 pb-14">
+        <Spinner />
+      </div>)}
       {data?.pages.map((page, idx) => (
         <div key={idx} className="mb-8 flex flex-col gap-8">
           {page.data?.map((post) => (

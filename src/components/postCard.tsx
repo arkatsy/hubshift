@@ -1,3 +1,4 @@
+import { useMediaQuery } from "@/hooks/useMediaQuery"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -16,10 +17,16 @@ export const PostCard = ({
   postTitle,
   postId,
 }: PostCardProps) => {
-  const postDate = new Date(createdAt).toLocaleString("en-US", {
+  const fullDate = new Date(createdAt).toLocaleString("en-US", {
     dateStyle: "full",
     timeStyle: "short",
   })
+
+  const shortDate = new Date(createdAt).toLocaleString("en-US", {
+    dateStyle: "short"
+  })
+
+  const isMobile = useMediaQuery("(max-width: 640px)")
 
   return (
     <div
@@ -44,8 +51,8 @@ export const PostCard = ({
           <span>{authorUsername}</span>
         </Link>
         <div className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-600" />
-        <span className="text-md text-zinc-700 dark:text-zinc-200" title={`Posted on ${postDate}`}>
-          {postDate}
+        <span className="text-md text-zinc-700 dark:text-zinc-200" title={`Posted on ${fullDate}`}>
+          {isMobile ? shortDate : fullDate}
         </span>
       </div>
       <Link
