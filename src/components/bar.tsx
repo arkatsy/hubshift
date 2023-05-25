@@ -10,6 +10,7 @@ import { Fragment, useContext, useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { SunIcon, MoonIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { ThemeContext } from "@/lib/theme"
+import { type DB } from "@/lib/types"
 
 export function Bar() {
   const { isLoading, session } = useSessionContext()
@@ -34,7 +35,7 @@ export function Bar() {
 
   return (
     <div className="flex h-full items-center justify-between">
-      <Brand isLink={true} />
+      <Brand isLink={true} title={`Go to the feed page`} />
       <div className="flex items-center gap-8">
         {shouldShowNewPost && (
           <Link
@@ -42,12 +43,17 @@ export function Bar() {
             className="rounded-md border border-indigo-600 px-2 py-2 text-lg font-semibold
           text-indigo-600 hover:bg-indigo-600 hover:text-zinc-50 hover:underline active:bg-indigo-600 active:text-zinc-50
           active:underline sm:px-5"
+            title="Create a new post"
           >
             {createPostButtonIsIcon ? <PlusIcon className="h-5 w-5" /> : "New Post"}
           </Link>
         )}
         {themeIcon && (
-          <button onClick={toggleTheme} className="rounded-md">
+          <button
+            onClick={toggleTheme}
+            className="rounded-md"
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
             {theme === "dark" ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
           </button>
         )}
@@ -82,7 +88,7 @@ type ProfileProps = {
 }
 
 function Profile({ avatar_url, username, className, email }: ProfileProps) {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseClient<DB>()
   const router = useRouter()
 
   const onSignOut = () => {
@@ -92,13 +98,13 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
 
   return (
     <Menu as="div" className={twMerge("relative", className)}>
-      <Menu.Button className="rounded-md">
+      <Menu.Button className="rounded-md" title="Your profile">
         <Image
           src={avatar_url}
-          alt={username}
+          alt="Your profile picture"
           width={42}
           height={42}
-          className="select-none rounded-full shadow-sm w-10 h-10"
+          className="h-10 w-10 select-none rounded-full shadow-sm"
         />
       </Menu.Button>
       <Transition
@@ -118,8 +124,10 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
             {({ active }) => (
               <Link
                 href={`/user/${username}`}
-                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${active && "bg-zinc-100 dark:bg-zinc-700"
-                  }`}
+                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${
+                  active && "bg-zinc-100 dark:bg-zinc-700"
+                }`}
+                title="Go to your profile page"
               >
                 <p className="pl-4 font-bold">@{username}</p>
                 <p className="pl-4 font-normal">{email}</p>
@@ -129,9 +137,11 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
           <Menu.Item>
             {({ active }) => (
               <button
-                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${active && "bg-zinc-100 dark:bg-zinc-700"
-                  }`}
+                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${
+                  active && "bg-zinc-100 dark:bg-zinc-700"
+                }`}
                 onClick={onSignOut}
+                title="Sign out"
               >
                 Sign Out
               </button>

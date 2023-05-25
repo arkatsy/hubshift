@@ -1,10 +1,9 @@
-import { type Database } from "@/lib/dbtypes"
+import type { SupaClient, DB, UserProfile } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { useQuery } from "@tanstack/react-query"
 
-export const useProfile = (id: string, initialData?: any) => {
-  const client = useSupabaseClient<Database>()
+export const useProfile = (id: string, initialData?: UserProfile) => {
+  const client = useSupabaseClient<DB>()
   return useQuery({
     queryKey: ["profile", id],
     queryFn: () => getProfile(client, id),
@@ -14,7 +13,7 @@ export const useProfile = (id: string, initialData?: any) => {
   })
 }
 
-const getProfile = async (client: SupabaseClient, id: string) => {
+const getProfile = async (client: SupaClient, id: string) => {
   const { data } = await client
     .from("user_profiles")
     .select("id, username, avatar_url, bio")

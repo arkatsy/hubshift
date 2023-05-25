@@ -16,18 +16,21 @@ export function BrandWithOrWithoutLink({
   isLink = false,
   className = "",
   href = "/",
+  ...props
 }: {
   isLink: boolean
   className?: string
   href?: LinkProps["href"]
+  [key: string]: any
 }) {
   return isLink ? (
-    <Link href={href} className={twMerge(baseClasses, className)}>
+    <Link href={href} className={twMerge(baseClasses, className)} {...props}>
       <Brand />
     </Link>
   ) : (
     <div className={twMerge(baseClasses, className)}>
       <Brand />
+      boolean
     </div>
   )
 }

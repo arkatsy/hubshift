@@ -1,32 +1,30 @@
-import { type Database } from "@/lib/dbtypes"
+import type { DB, PostWithoutAuthorDetails, SupaClient } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { SupabaseClient } from "@supabase/supabase-js"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { toast } from "react-hot-toast"
 
-type Post = {
-  title: string
-  content: string
-  author: string
-  id: string
-}
+type Post = Omit<PostWithoutAuthorDetails, "created_at">
 
 export const usePublishPost = () => {
-  const client = useSupabaseClient<Database>()
+  const client = useSupabaseClient<DB>()
   const router = useRouter()
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationKey: ["publishedPost"],
     mutationFn: (post: Post) => publishPost(client, post),
-    onSuccess: () => {
+    onSuccess: (_, post) => {
       toast.success("Post published!")
+      queryClient.invalidateQueries(["allPosts"])
+      queryClient.invalidateQueries(["userPosts", post.author])
       router.push("/")
     },
-    onError: () => toast.error("Error publishing post"),
+    onError: () => toast.error("An error occurred while publishing the post"),
   })
 }
 
-const publishPost = async (client: SupabaseClient<Database>, post: Post) => {
+const publishPost = async (client: SupaClient, post: Post) => {
   const { id, title, content, author } = post
   const { data } = await client.from("posts").insert({
     id,

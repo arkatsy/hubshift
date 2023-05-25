@@ -1,4 +1,4 @@
-import type { StepComponentProps } from "@/pages/welcome"
+import type { StepComponentProps } from "@/lib/types"
 
 export const Step3 = ({ data, setData }: StepComponentProps) => {
   const onBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

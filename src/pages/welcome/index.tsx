@@ -4,27 +4,13 @@ import { Step2 } from "@/components/welcomeSteps/step2"
 import { Step3 } from "@/components/welcomeSteps/step3"
 import { useCreateProfile } from "@/hooks/useCreateProfile"
 import { useGenDefaultAvatar } from "@/hooks/useGenDefaultAvatar"
-import type { Database } from "@/lib/dbtypes"
-import { type SupabaseClient, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
+import type { DB, ProfileDataMutation, Step, SupaClient } from "@/lib/types"
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import { useUser } from "@supabase/auth-helpers-react"
 import { type GetServerSidePropsContext } from "next"
-import { useRouter } from "next/router"
 import { useEffect, useState, Fragment } from "react"
 
-export type StepComponentProps = {
-  setData: React.Dispatch<React.SetStateAction<ProfileData>>
-  setBlobAvatar: React.Dispatch<React.SetStateAction<Blob | null>>
-  data: ProfileData
-}
-
-export type Step = {
-  id: 0 | 1 | 2
-  title: string
-  status: "current" | "complete" | "incomplete"
-  Component: React.ElementType<StepComponentProps>
-}
-
-const fetchUserIdWithId = async (client: SupabaseClient, id: string) => {
+const fetchUserIdWithId = async (client: SupaClient, id: string) => {
   const { data } = await client.from("user_profiles").select("id").eq("id", id).single()
   return !data?.id
 }
@@ -51,7 +37,7 @@ const accountCreationSteps: Step[] = [
 ]
 
 export const getServerSideProps = async (ctxt: GetServerSidePropsContext) => {
-  const supabase = createServerSupabaseClient<Database>(ctxt)
+  const supabase = createServerSupabaseClient<DB>(ctxt)
 
   // For convinience we use the email to extract an initial username.
   // This username is used only for fetching a default avatar in the component later.
@@ -95,16 +81,8 @@ type WelcomePageProps = {
   username: string
 }
 
-export type ProfileData = {
-  username: string
-  avatar_url: string
-  bio: string
-}
-
 export default function WelcomePage({ username }: WelcomePageProps) {
   const { data: avatarBlob, refetch: generateAvatar } = useGenDefaultAvatar(username)
-
-  const router = useRouter()
 
   // Avatar blob from step 2 if the user upload an avatar from a file.
   // The reason we convert the blob here is to have control of the url
@@ -115,7 +93,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
   const [steps, setSteps] = useState(accountCreationSteps)
 
   // The data that will be sent to the db
-  const [profileData, setProfileData] = useState<ProfileData>({
+  const [profileData, setProfileData] = useState<ProfileDataMutation>({
     username: "",
     avatar_url: user?.user_metadata.avatar_url || "",
     bio: "",
@@ -173,10 +151,11 @@ export default function WelcomePage({ username }: WelcomePageProps) {
   // Any validation should be done in the Step component that sets the profileData
   useEffect(() => setCanMoveToNextStep(Boolean(profileData.username)), [profileData.username])
 
-  const stepInformation = `Step ${steps.findIndex((step) => step.status === "current") === -1
-    ? steps.length
-    : steps.findIndex((step) => step.status === "current") + 1
-    } of ${steps.length}`
+  const stepInformation = `Step ${
+    steps.findIndex((step) => step.status === "current") === -1
+      ? steps.length
+      : steps.findIndex((step) => step.status === "current") + 1
+  } of ${steps.length}`
 
   const isLastStep = steps.findIndex((step) => step.status === "incomplete") === -1
 
@@ -206,8 +185,8 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         idx === currentStep
           ? { ...step, status: "complete" }
           : idx === nextStep
-            ? { ...step, status: "current" }
-            : step
+          ? { ...step, status: "current" }
+          : step
       )
     })
   }
@@ -222,8 +201,8 @@ export default function WelcomePage({ username }: WelcomePageProps) {
         idx === currentStep
           ? { ...step, status: "incomplete" }
           : idx === prevStep
-            ? { ...step, status: "current" }
-            : step
+          ? { ...step, status: "current" }
+          : step
       )
     })
   }
@@ -267,7 +246,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
           </Fragment>
         ))}
         {showSpinner && (
-          <div className="flex justify-center w-full">
+          <div className="flex w-full justify-center">
             <Spinner />
           </div>
         )}
@@ -277,6 +256,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
             onClick={handleGoBackClick}
             className="select-none rounded-md bg-zinc-200 px-4 py-2 hover:bg-zinc-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-700
             dark:hover:bg-zinc-600"
+            title="Go back"
           >
             Go Back
           </button>
@@ -285,6 +265,7 @@ export default function WelcomePage({ username }: WelcomePageProps) {
             onClick={handleNextClick}
             className="select-none rounded-md bg-indigo-600 px-4 py-2 text-zinc-50 hover:bg-indigo-500 disabled:cursor-not-allowed 
           disabled:opacity-50 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+            title={isLastStep ? "Finish" : "Next"}
           >
             {steps.findIndex((step) => step.status === "current") === steps.length - 1
               ? "Finish"

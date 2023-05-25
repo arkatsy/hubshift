@@ -31,23 +31,27 @@ export const PostCard = ({
         <Link
           href={`user/${authorUsername}`}
           className="flex cursor-pointer items-center gap-4 rounded-md text-lg font-semibold hover:underline focus-visible:underline"
+          title={`View ${authorUsername}'s profile`}
         >
           <Image
             src={authorAvatar}
             width={40}
             height={40}
-            alt=""
+            alt={`Avatar for ${authorUsername}`}
             draggable={false}
-            className="select-none rounded-full w-10 h-10"
+            className="h-10 w-10 select-none rounded-full"
           />
           <span>{authorUsername}</span>
         </Link>
         <div className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-600" />
-        <span className="text-md text-zinc-700 dark:text-zinc-200">{postDate}</span>
+        <span className="text-md text-zinc-700 dark:text-zinc-200" title={`Posted on ${postDate}`}>
+          {postDate}
+        </span>
       </div>
       <Link
         href={`/post/${encodeURIComponent(postId)}`}
         className="cursor-pointer rounded-md text-2xl font-bold hover:text-indigo-600 dark:hover:text-indigo-500 md:mx-14"
+        title={`View ${postTitle}`}
       >
         {postTitle}
       </Link>

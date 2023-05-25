@@ -1,7 +1,9 @@
-import { type SupabaseClient } from "@supabase/supabase-js"
+import type { SupaClient, DB } from "@/lib/types"
+import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useQuery } from "@tanstack/react-query"
 
-export const useIsUsernameAvailable = (client: SupabaseClient, username: string) => {
+export const useIsUsernameAvailable = (username: string) => {
+  const client = useSupabaseClient<DB>()
   return useQuery({
     queryKey: ["isUsernameAvailable", username],
     queryFn: () => fetchUsername(client, username),
@@ -10,7 +12,7 @@ export const useIsUsernameAvailable = (client: SupabaseClient, username: string)
   })
 }
 
-const fetchUsername = async (client: SupabaseClient, username: string) => {
+const fetchUsername = async (client: SupaClient, username: string) => {
   const { data } = await client
     .from("user_profiles")
     .select("username")

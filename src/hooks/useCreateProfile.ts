@@ -1,22 +1,17 @@
-import { type Database } from "@/lib/dbtypes"
+import type { SupaClient, DB, ProfileDataMutation } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { toast } from "react-hot-toast"
 
 type Profile = {
-  profileData: {
-    username: string
-    avatar_url: string
-    bio: string
-  }
+  profileData: ProfileDataMutation
   id: string
   avatarBlob: Blob
 }
 
 export const useCreateProfile = () => {
-  const client = useSupabaseClient<Database>()
+  const client = useSupabaseClient<DB>()
   const router = useRouter()
 
   return useMutation({
@@ -32,7 +27,7 @@ export const useCreateProfile = () => {
 }
 
 const createProfile = async (
-  client: SupabaseClient<Database>,
+  client: SupaClient,
   profileData: Profile["profileData"],
   id: string,
   avatarBlob: Blob

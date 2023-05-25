@@ -1,5 +1,5 @@
 import Image from "next/image"
-import type { StepComponentProps } from "@/pages/welcome"
+import type { StepComponentProps } from "@/lib/types"
 
 export const Step2 = ({ setBlobAvatar, data }: StepComponentProps) => {
   const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

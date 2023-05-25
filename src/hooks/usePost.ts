@@ -1,35 +1,18 @@
-import { type Database } from "@/lib/dbtypes"
+import type { PostWithAuthorDetails, SupaClient, DB } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { useQuery } from "@tanstack/react-query"
 
-export const usePost = (id: string) => {
-  const client = useSupabaseClient<Database>()
+export const usePost = (id: string, initialData?: PostWithAuthorDetails) => {
+  const client = useSupabaseClient<DB>()
   return useQuery({
     queryKey: ["post", id],
     queryFn: () => fetchPost(client, id),
+    initialData,
+    staleTime: Infinity,
   })
 }
 
-type Post = {
-  id: string
-  title: string
-  content: string
-  created_at: string
-}
-
-type AuthorProfile = {
-  id: string
-  username: string
-  avatar_url: string
-  bio: string
-}
-
-type PostWithAuthorData = Post & {
-  author: AuthorProfile
-}
-
-const fetchPost = async (client: SupabaseClient<Database>, id: string) => {
+const fetchPost = async (client: SupaClient, id: string) => {
   let { data: post } = await client
     .from("posts")
     .select("author, content, created_at, id, title")
@@ -38,7 +21,7 @@ const fetchPost = async (client: SupabaseClient<Database>, id: string) => {
 
   if (!post) return null
 
-  const postWithAuthorData: PostWithAuthorData = {
+  const postWithAuthorData: PostWithAuthorDetails = {
     id: post.id,
     title: post.title,
     content: post.content,
@@ -51,17 +34,15 @@ const fetchPost = async (client: SupabaseClient<Database>, id: string) => {
     },
   }
 
-  if (post) {
-    let { data: authorData } = await client
-      .from("user_profiles")
-      .select("id, username, avatar_url, bio")
-      .eq("username", post.author)
-      .single()
+  let { data: authorData } = await client
+    .from("user_profiles")
+    .select("id, username, avatar_url, bio")
+    .eq("username", post.author)
+    .single()
 
-    if (!authorData) return null
+  if (!authorData) return null
 
-    postWithAuthorData["author"] = authorData
-  }
+  postWithAuthorData["author"] = authorData
 
   return postWithAuthorData
 }

@@ -1,35 +1,71 @@
 import { PostCard } from "@/components/postCard"
 import { useIsNewUser } from "@/hooks/useIsNewUser"
 import { useAllPosts } from "@/hooks/useAllPosts"
-import { getServerAuthStatus } from "@/lib/helpers"
-import { type User } from "@supabase/auth-helpers-react"
+import { useUser } from "@supabase/auth-helpers-react"
 import { useQueryClient } from "@tanstack/react-query"
-import type { GetServerSidePropsContext } from "next"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
 import { Spinner } from "@/components/spinner"
+import { supabase as client } from "@/lib/supabaseClient"
+import type { PostWithAuthorDetails } from "@/lib/types"
+import { getRecentPosts } from "@/lib/helpers"
+import type { GetStaticProps, InferGetStaticPropsType } from "next"
 
+type FeedPageProps = {
+  posts: PostWithAuthorDetails[]
+}
 
-export async function getServerSideProps(ctxt: GetServerSidePropsContext) {
-  const { user } = await getServerAuthStatus(ctxt)
+export const getStaticProps: GetStaticProps<FeedPageProps> = async () => {
+  const authors = new Set<string>()
+  const postsWithAuthorData: PostWithAuthorDetails[] = []
+
+  const posts = await getRecentPosts()
+
+  posts.map((post) => {
+    authors.add(post.author)
+    postsWithAuthorData.push({
+      ...post,
+      author: {
+        id: "",
+        username: "",
+        avatar_url: "",
+        bio: "",
+      },
+    })
+    return post
+  })
+
+  const { data: authorData } = await client
+    .from("user_profiles")
+    .select("id, username, avatar_url, bio")
+    .in("username", Array.from(authors))
+
+  if (!authorData)
+    return {
+      notFound: true,
+    }
+
+  posts.map((post, id) => {
+    const author = authorData.find((author) => author.username === post.author)
+
+    if (author) postsWithAuthorData[id].author = author
+  })
 
   return {
     props: {
-      user,
+      posts: postsWithAuthorData,
     },
+    revalidate: 30,
   }
 }
 
-type FeedPageProps = {
-  user: User | null
-}
-
-export default function FeedPage({ user }: FeedPageProps) {
+export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const user = useUser()
   const { data: isNewUser, isLoading } = useIsNewUser()
   const router = useRouter()
 
-  const { data, fetchNextPage, hasNextPage, } = useAllPosts()
+  const { data, fetchNextPage, hasNextPage } = useAllPosts(posts)
 
   const { ref, inView } = useInView()
 
@@ -82,8 +118,11 @@ export default function FeedPage({ user }: FeedPageProps) {
           ))}
         </div>
       ))}
-      {hasNextPage && <div ref={ref} className="flex justify-center w-full ">
-        <Spinner /></div>}
+      {hasNextPage && (
+        <div ref={ref} className="flex w-full justify-center ">
+          <Spinner />
+        </div>
+      )}
     </main>
   )
 }

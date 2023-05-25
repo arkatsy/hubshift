@@ -9,12 +9,12 @@ import { type User, useSession } from "@supabase/auth-helpers-react"
 import { Spinner } from "@/components/spinner"
 import dynamic from "next/dynamic"
 
-
-const MarkdownPreview = dynamic(() => import("../../components/markdownPreview").then(
-  (mod) => mod.MarkdownPreview
-), {
-  loading: () => <Spinner />,
-})
+const MarkdownPreview = dynamic(
+  () => import("../../components/markdownPreview").then((mod) => mod.MarkdownPreview),
+  {
+    loading: () => <Spinner />,
+  }
+)
 
 export const getServerSideProps = async (ctxt: GetServerSidePropsContext) => {
   const { session, user } = await getServerAuthStatus(ctxt)
@@ -88,13 +88,14 @@ export default function CreateNewPostPage({ user }: CreateNewPostPageProps) {
   return (
     <div className="mt-8 flex w-full flex-col">
       <div className="justify space-between flex items-center justify-between pb-4">
-        <h1 className="text-2xl font-bold md:text-3xl">Create Your Blog</h1>
+        <h1 className="text-2xl font-bold md:text-3xl">Create Your Post</h1>
         <div className="flex gap-4 ">
           <button
             className="flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 
           hover:bg-zinc-100 dark:border-zinc-500
         dark:bg-zinc-800 dark:hover:bg-zinc-700"
             onClick={() => setIsPreview((c) => !c)}
+            title={`View ${isPreview ? "Edit" : "Preview"}`}
           >
             <span className="space-between flex items-center gap-4 font-semibold">
               {!isMobile && (isPreview ? "Edit" : "Preview")}
@@ -111,6 +112,7 @@ export default function CreateNewPostPage({ user }: CreateNewPostPageProps) {
             className="flex items-center gap-4 rounded-md bg-indigo-600 px-4 py-2 font-semibold text-zinc-50 hover:bg-indigo-500
             disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 disabled:outline disabled:outline-1 disabled:outline-zinc-200
             disabled:dark:bg-zinc-800 disabled:dark:outline-zinc-700"
+            title={canPublish ? "Publish" : "Please fill in the title and content"}
           >
             {!isMobile && "Publish"}
             <PaperAirplaneIcon className="h-5 w-5" />

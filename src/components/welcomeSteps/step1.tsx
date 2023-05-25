@@ -3,10 +3,8 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import debounce from "lodash.debounce"
 import { useEffect, useMemo, useState } from "react"
-import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { StepComponentProps } from "@/pages/welcome"
 import { useIsUsernameAvailable } from "@/hooks/useIsUsernameAvailable"
-import type { Database } from "@/lib/dbtypes"
+import type { StepComponentProps } from "@/lib/types"
 
 const usernameSchema = z.object({
   username: z
@@ -21,8 +19,6 @@ type UsernameForm = z.infer<typeof usernameSchema>
 const INPUT_DEBOUNCE = 500 // ms
 
 export const Step1 = ({ data, setData }: StepComponentProps) => {
-  const supabase = useSupabaseClient<Database>()
-
   const { register, formState, clearErrors, setError, setFocus } = useForm<UsernameForm>({
     resolver: zodResolver(usernameSchema),
   })
@@ -34,7 +30,7 @@ export const Step1 = ({ data, setData }: StepComponentProps) => {
   const [candidateUsername, setCandidateUsername] = useState<string>(data.username)
 
   // Checks username availability when we have a candidate username
-  const { data: usernameDbRes } = useIsUsernameAvailable(supabase, candidateUsername)
+  const { data: usernameDbRes } = useIsUsernameAvailable(candidateUsername)
 
   // Debouncing input change
   const debouncedInputChange = useMemo(

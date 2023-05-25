@@ -1,9 +1,9 @@
-import { type Database } from "@/lib/dbtypes"
-import { type SupabaseClient, useUser, useSupabaseClient } from "@supabase/auth-helpers-react"
+import type { SupaClient, DB } from "@/lib/types"
+import { useUser, useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useQuery } from "@tanstack/react-query"
 
 export const useIsNewUser = () => {
-  const client = useSupabaseClient<Database>()
+  const client = useSupabaseClient<DB>()
   const user = useUser()
 
   return useQuery({
@@ -15,7 +15,7 @@ export const useIsNewUser = () => {
   })
 }
 
-export const fetchUserIdWithId = async (client: SupabaseClient<Database>, id: string) => {
+export const fetchUserIdWithId = async (client: SupaClient, id: string) => {
   const { data } = await client.from("user_profiles").select("id").eq("id", id).single()
   return !data?.id
 }

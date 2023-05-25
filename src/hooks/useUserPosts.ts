@@ -1,22 +1,32 @@
-import { type Database } from "@/lib/dbtypes"
+import { POSTS_PER_PAGE } from "@/lib/helpers"
+import type { SupaClient, DB, PostWithoutAuthorDetails } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
-import type { SupabaseClient } from "@supabase/supabase-js"
 import { useInfiniteQuery } from "@tanstack/react-query"
 
-const POSTS_PER_PAGE = 10
-
-export const useUserPosts = (username: string) => {
-  const client = useSupabaseClient<Database>()
+export const useUserPosts = (username: string, initialData?: PostWithoutAuthorDetails[] | null) => {
+  const client = useSupabaseClient<DB>()
   return useInfiniteQuery({
-    queryKey: ["myPosts"],
+    queryKey: ["userPosts", username],
     queryFn: ({ pageParam = 0 }) => getMyPosts(client, username, pageParam),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     getPreviousPageParam: (firstPage) => firstPage.previousPage,
     staleTime: 60 * 1000 * 10, // 10 minute
+    initialData: initialData
+      ? {
+          pages: [
+            {
+              data: initialData,
+              nextPage: 1,
+              previousPage: null,
+            },
+          ],
+          pageParams: [],
+        }
+      : undefined,
   })
 }
 
-const getMyPosts = async (client: SupabaseClient, username: string, pageParam: number) => {
+const getMyPosts = async (client: SupaClient, username: string, pageParam: number) => {
   const { data } = await client
     .from("posts")
     .select("id, title, content, created_at")
@@ -26,7 +36,7 @@ const getMyPosts = async (client: SupabaseClient, username: string, pageParam: n
 
   return {
     data,
-    nextPage: data && data.length >= POSTS_PER_PAGE ? pageParam + 1 : undefined,
-    previousPage: pageParam > 0 ? pageParam - 1 : undefined,
+    nextPage: data && data.length >= POSTS_PER_PAGE ? pageParam + 1 : null,
+    previousPage: pageParam > 0 ? pageParam - 1 : null,
   }
 }
