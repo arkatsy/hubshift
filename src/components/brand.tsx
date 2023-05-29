@@ -30,7 +30,6 @@ export function BrandWithOrWithoutLink({
   ) : (
     <div className={twMerge(baseClasses, className)}>
       <Brand />
-      boolean
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import type { DB, SupaClient, PostWithAuthorDetails } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { POSTS_PER_PAGE } from "@/lib/helpers"
+import { POSTS_PER_PAGE, getPostLikes } from "@/lib/helpers"
 
 export const useAllPosts = (initialData?: PostWithAuthorDetails[]) => {
   const client = useSupabaseClient<DB>()
@@ -40,16 +40,14 @@ const fetchPosts = async (client: SupaClient, pageParam: number) => {
 
   const authors = new Set<string>()
   const postsWithAuthorData: PostWithAuthorDetails[] = posts.map((post) => ({
-    id: post.id,
-    title: post.title,
-    content: post.content,
-    created_at: post.created_at,
+    ...post,
     author: {
       id: "",
       username: "",
       avatar_url: "",
       bio: "",
     },
+    likes: 0,
   }))
 
   // Removing duplicate authors by using a Set
@@ -73,6 +71,19 @@ const fetchPosts = async (client: SupaClient, pageParam: number) => {
 
     if (author) {
       postsWithAuthorData[id]["author"] = author
+    }
+  })
+
+  // Get likes for each post
+  const likes = await Promise.all(
+    posts.map((post) => post.id).map((postId) => getPostLikes(postId, client))
+  )
+
+  likes.map((like) => {
+    let post = postsWithAuthorData.find((post) => post.id === like.post_id)
+
+    if (post) {
+      post.likes = like.count
     }
   })
 

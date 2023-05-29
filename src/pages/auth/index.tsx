@@ -41,7 +41,7 @@ export default function AuthPage() {
       </div>
       <Auth
         supabaseClient={supabase}
-        providers={["google", "github", "discord"]}
+        providers={["google", "github"]}
         socialLayout="vertical"
         theme={mounted}
         appearance={{ theme: HubShiftTheme }}

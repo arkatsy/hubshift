@@ -9,7 +9,7 @@ import { useInView } from "react-intersection-observer"
 import { Spinner } from "@/components/spinner"
 import { supabase as client } from "@/lib/supabaseClient"
 import type { PostWithAuthorDetails } from "@/lib/types"
-import { getRecentPosts } from "@/lib/helpers"
+import { getPostLikes, getRecentPosts } from "@/lib/helpers"
 import type { GetStaticProps, InferGetStaticPropsType } from "next"
 import { ArrowPathIcon as RefreshIcon } from "@heroicons/react/20/solid"
 
@@ -33,6 +33,7 @@ export const getStaticProps: GetStaticProps<FeedPageProps> = async () => {
         avatar_url: "",
         bio: "",
       },
+      likes: 0
     })
     return post
   })
@@ -53,6 +54,18 @@ export const getStaticProps: GetStaticProps<FeedPageProps> = async () => {
     if (author) postsWithAuthorData[id].author = author
   })
 
+  // get likes
+  const likes = await Promise.all(
+    posts.map((post) => post.id).map((postId) => getPostLikes(postId))
+  )
+
+  likes.map((like) => {
+    let post = postsWithAuthorData.find((post) => post.id === like.post_id)
+    if (!post) return
+
+    postsWithAuthorData[postsWithAuthorData.indexOf(post)].likes = like.count
+  })
+
   return {
     props: {
       posts: postsWithAuthorData,
@@ -63,10 +76,16 @@ export const getStaticProps: GetStaticProps<FeedPageProps> = async () => {
 
 export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   const user = useUser()
-  const { data: isNewUser, isLoading } = useIsNewUser()
+  const { data: isNewUser, isLoading: isLoadingNewUserCheck } = useIsNewUser()
   const router = useRouter()
 
-  const { data, fetchNextPage, hasNextPage, isFetching } = useAllPosts(posts)
+  const { data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+    isLoading
+  } = useAllPosts(posts)
 
   const { ref, inView } = useInView()
 
@@ -84,13 +103,13 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
 
   // If we are not from the welcome page and is new user, we
   // redirect to the welcome page
-  if (!isFromWelcome && !isLoading && isNewUser) {
+  if (!isFromWelcome && !isLoadingNewUserCheck && isNewUser) {
     router.push("/welcome")
   }
 
   // If we just came from the welcome page, we invalidate the proper queries
   // and then we remove the query param
-  if (isFromWelcome && !isLoading && user) {
+  if (isFromWelcome && !isLoadingNewUserCheck && user) {
     queryClient.invalidateQueries({
       queryKey: ["isNewUser"],
     })
@@ -110,15 +129,18 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
         <h1 className="text-4xl font-bold">Feed</h1>
         <button
           onClick={handleRefreshFeed}
-          className="rounded-full bg-zinc-200 px-2 py-2 hover:bg-zinc-300 active:bg-zinc-400"
+          className="rounded-full bg-zinc-200 px-2 py-2 hover:bg-zinc-300 active:bg-zinc-400 
+          dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:active:bg-zinc-400"
         >
-          <RefreshIcon className="h-5 w-5 text-zinc-800" />
+          <RefreshIcon className="h-5 w-5 text-zinc-800 dark:text-zinc-200" />
         </button>
       </div>
-      {isFetching && (<div className="flex justify-center w-full pt-2 pb-14">
-        <Spinner />
-      </div>)}
-      {data?.pages.map((page, idx) => (
+      {isFetching && (
+        <div className="flex w-full justify-center pb-14 pt-2">
+          <Spinner />
+        </div>
+      )}
+      {!isLoading && data?.pages.map((page, idx) => (
         <div key={idx} className="mb-8 flex flex-col gap-8">
           {page.data?.map((post) => (
             <PostCard
@@ -128,14 +150,17 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
               authorUsername={post.author.username}
               createdAt={post.created_at}
               postTitle={post.title}
+              likes={post.likes}
             />
           ))}
         </div>
       ))}
       {hasNextPage && (
-        <div ref={ref} className="flex w-full justify-center ">
+      <div ref={ref} className="flex w-full justify-center ">
+        {isFetchingNextPage && (
           <Spinner />
-        </div>
+        )}
+      </div>
       )}
     </main>
   )

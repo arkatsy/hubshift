@@ -1,3 +1,4 @@
+import { getPostLikes } from "@/lib/helpers"
 import type { PostWithAuthorDetails, SupaClient, DB } from "@/lib/types"
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useQuery } from "@tanstack/react-query"
@@ -22,16 +23,14 @@ const fetchPost = async (client: SupaClient, id: string) => {
   if (!post) return null
 
   const postWithAuthorData: PostWithAuthorDetails = {
-    id: post.id,
-    title: post.title,
-    content: post.content,
-    created_at: post.created_at,
+    ...post,
     author: {
       id: "",
       username: "",
       avatar_url: "",
       bio: "",
     },
+    likes: 0,
   }
 
   let { data: authorData } = await client
@@ -43,6 +42,10 @@ const fetchPost = async (client: SupaClient, id: string) => {
   if (!authorData) return null
 
   postWithAuthorData["author"] = authorData
+
+  const likes = await getPostLikes(id, client)
+
+  if (likes) postWithAuthorData["likes"] = likes.count
 
   return postWithAuthorData
 }

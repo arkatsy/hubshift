@@ -16,6 +16,7 @@ export type PostWithAuthorDetails = {
   content: string
   created_at: string
   author: UserProfile
+  likes: number
 }
 
 export type PostWithoutAuthorDetails = {
@@ -24,6 +25,7 @@ export type PostWithoutAuthorDetails = {
   content: string
   created_at: string
   author: string
+  likes: number
 }
 
 export type SupaClient = SupabaseClient<Database>

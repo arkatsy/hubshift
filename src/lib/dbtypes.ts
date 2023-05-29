@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json } | Json[]
 
 export interface Database {
   graphql_public: {
@@ -34,12 +28,33 @@ export interface Database {
   }
   public: {
     Tables: {
+      likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+      }
       posts: {
         Row: {
           author: string
           content: string
           created_at: string
           id: string
+          likedBy: string[]
           title: string
         }
         Insert: {
@@ -47,6 +62,7 @@ export interface Database {
           content: string
           created_at?: string
           id?: string
+          likedBy?: string[]
           title: string
         }
         Update: {
@@ -54,6 +70,7 @@ export interface Database {
           content?: string
           created_at?: string
           id?: string
+          likedBy?: string[]
           title?: string
         }
       }

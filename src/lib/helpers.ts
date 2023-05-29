@@ -1,7 +1,7 @@
 import { type Session, createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import type { GetServerSidePropsContext } from "next"
 import type { User } from "@supabase/supabase-js"
-import type { DB, PostWithoutAuthorDetails, UserProfile } from "./types"
+import type { DB, PostWithoutAuthorDetails, SupaClient, UserProfile } from "./types"
 import { supabase } from "./supabaseClient"
 
 export async function getServerAuthStatus(ctxt: GetServerSidePropsContext): Promise<{
@@ -49,7 +49,24 @@ export async function getUserPosts(username: string): Promise<PostWithoutAuthorD
     .limit(POSTS_PER_PAGE)
 
   if (!posts) return []
-  return posts
+
+  const postsWithLikes = posts.map((post) => ({
+    ...post,
+    likes: 0,
+  }))
+
+  const likes = await Promise.all(
+    posts.map((post) => post.id).map((postId) => getPostLikes(postId))
+  )
+
+  likes.map((like) => {
+    let post = postsWithLikes.find((post) => post.id === like.post_id)
+    if (!post) return
+
+    postsWithLikes[postsWithLikes.indexOf(post)].likes = like.count
+  })
+
+  return postsWithLikes
 }
 
 export async function getPost(id: string): Promise<PostWithoutAuthorDetails | null> {
@@ -60,7 +77,17 @@ export async function getPost(id: string): Promise<PostWithoutAuthorDetails | nu
     .single()
 
   if (!post) return null
-  return post
+
+  const postWithLikes = {
+    ...post,
+    likes: 0,
+  }
+
+  const likes = await getPostLikes(id)
+
+  postWithLikes.likes = likes.count
+
+  return postWithLikes
 }
 
 export async function getAllUsers(): Promise<UserProfile[]> {
@@ -73,13 +100,57 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 }
 
 export async function getRecentPosts(): Promise<PostWithoutAuthorDetails[]> {
-  const { data } = await supabase
+  const { data: posts } = await supabase
     .from("posts")
     .select("id, title, content, created_at, author")
     .limit(POSTS_PER_PAGE)
     .order("created_at", { ascending: false })
 
-  if (!data) return []
+  if (!posts) return []
 
-  return data.flat()
+  // Add the likes to the posts with default 0
+  const postsWithLikes = posts.map((post) => ({
+    ...post,
+    likes: 0,
+  }))
+
+  // Would be nice to abstract a getPostsIds(postIds: string[]): Promise<{post_id: string, count: number}[]> function.
+  const likes = await Promise.all(
+    posts.map((post) => post.id).map((postId) => getPostLikes(postId))
+  )
+
+  likes.map((like) => {
+    let post = postsWithLikes.find((post) => post.id === like.post_id)
+    if (!post) return
+
+    postsWithLikes[postsWithLikes.indexOf(post)].likes = like.count
+  })
+
+  return postsWithLikes
+}
+
+export async function getPostLikes(
+  postId: string,
+  client?: SupaClient
+): Promise<{
+  post_id: string
+  count: number
+}> {
+  const likes = await (client ?? supabase)
+    .from("likes")
+    .select("id, post_id", { count: "exact" })
+    .eq("post_id", postId)
+
+  if (!likes.data?.length)
+    return {
+      post_id: postId,
+      count: 0,
+    }
+
+  let likeCount = likes.count ?? 0
+
+  return {
+    post_id: postId,
+    count: likeCount,
+  }
 }

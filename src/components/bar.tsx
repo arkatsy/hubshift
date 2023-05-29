@@ -11,6 +11,7 @@ import { twMerge } from "tailwind-merge"
 import { SunIcon, MoonIcon, PlusIcon } from "@heroicons/react/24/outline"
 import { ThemeContext } from "@/lib/theme"
 import { type DB } from "@/lib/types"
+import { toast } from "react-hot-toast"
 
 export function Bar() {
   const { isLoading, session } = useSessionContext()
@@ -91,9 +92,11 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
   const supabase = useSupabaseClient<DB>()
   const router = useRouter()
 
-  const onSignOut = () => {
-    supabase.auth.signOut()
+  const onSignOut = async () => {
+    await supabase.auth.signOut()
     router.push("/")
+    router.reload()
+    toast.success("You are being logged out")
   }
 
   return (
@@ -124,9 +127,8 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
             {({ active }) => (
               <Link
                 href={`/user/${username}`}
-                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${
-                  active && "bg-zinc-100 dark:bg-zinc-700"
-                }`}
+                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${active && "bg-zinc-100 dark:bg-zinc-700"
+                  }`}
                 title="Go to your profile page"
               >
                 <p className="pl-4 font-bold">@{username}</p>
@@ -137,9 +139,8 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
           <Menu.Item>
             {({ active }) => (
               <button
-                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${
-                  active && "bg-zinc-100 dark:bg-zinc-700"
-                }`}
+                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${active && "bg-zinc-100 dark:bg-zinc-700"
+                  }`}
                 onClick={onSignOut}
                 title="Sign out"
               >

@@ -7,7 +7,6 @@ import { useInView } from "react-intersection-observer"
 import { Spinner } from "@/components/spinner"
 import type { PostWithoutAuthorDetails, UserProfile } from "@/lib/types"
 import { getAllUsernames, getUserPosts, getUserProfile } from "@/lib/helpers"
-import { useRouter } from "next/router"
 
 type UserProfilePageProps = {
   user: UserProfile
@@ -51,8 +50,6 @@ export default function UserProfilePage({
   user,
   posts,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const router = useRouter()
-
   const { ref, inView } = useInView()
   const { data, hasNextPage, fetchNextPage } = useUserPosts(user.username, posts)
 
@@ -62,7 +59,6 @@ export default function UserProfilePage({
       fetchNextPage()
     }
   }, [inView, fetchNextPage])
-
   return (
     <div className="mt-12 flex flex-col items-center">
       <Image
@@ -87,6 +83,7 @@ export default function UserProfilePage({
                   key={post.id}
                   createdAt={post.created_at}
                   postTitle={post.title}
+                  likes={post.likes}
                 />
               ))}
             </div>

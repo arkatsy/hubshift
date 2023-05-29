@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { toast } from "react-hot-toast"
 
-type Post = Omit<PostWithoutAuthorDetails, "created_at">
+type Post = Omit<PostWithoutAuthorDetails, "created_at" | "likes">
 
 export const usePublishPost = () => {
   const client = useSupabaseClient<DB>()
