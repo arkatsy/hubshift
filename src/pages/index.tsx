@@ -80,15 +80,13 @@ export default function FeedPage({ posts }: InferGetStaticPropsType<typeof getSt
   const { data: isNewUser, isLoading: isLoadingNewUserCheck } = useIsNewUser()
   const router = useRouter()
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, isLoading } =
-    useAllPosts(posts)
+  const { data, fetchNextPage, isFetchingNextPage, isFetching, isLoading } = useAllPosts(posts)
 
   const { ref, inView } = useInView()
 
   // Fetching next page when we reach the bottom of the page
   useEffect(() => {
     if (inView) {
-      console.log("in view")
       fetchNextPage()
     }
   }, [inView, fetchNextPage])
