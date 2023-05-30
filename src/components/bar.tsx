@@ -120,15 +120,16 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items
-          className="absolute right-0 flex w-52 flex-col rounded-md
+          className="absolute right-0 flex w-fit flex-col rounded-md
         border border-zinc-200 bg-zinc-50 p-1 text-left shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
         >
           <Menu.Item>
             {({ active }) => (
               <Link
                 href={`/user/${username}`}
-                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${active && "bg-zinc-100 dark:bg-zinc-700"
-                  }`}
+                className={`&& mb-1 rounded-md border-b border-zinc-200 p-1 dark:border-zinc-700 ${
+                  active && "bg-zinc-100 dark:bg-zinc-700"
+                }`}
                 title="Go to your profile page"
               >
                 <p className="pl-4 font-bold">@{username}</p>
@@ -139,8 +140,9 @@ function Profile({ avatar_url, username, className, email }: ProfileProps) {
           <Menu.Item>
             {({ active }) => (
               <button
-                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${active && "bg-zinc-100 dark:bg-zinc-700"
-                  }`}
+                className={`text-md rouned-md rounded-md py-1 pl-4 text-left ${
+                  active && "bg-zinc-100 dark:bg-zinc-700"
+                }`}
                 onClick={onSignOut}
                 title="Sign out"
               >

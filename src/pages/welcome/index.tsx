@@ -246,7 +246,8 @@ export default function WelcomePage({ username }: WelcomePageProps) {
           </Fragment>
         ))}
         {showSpinner && (
-          <div className="flex w-full justify-center">
+          <div className="flex w-full flex-col items-center justify-center">
+            <h1 className="my-6 text-xl font-bold">Please wait ...</h1>
             <Spinner />
           </div>
         )}

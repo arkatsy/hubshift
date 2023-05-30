@@ -16,6 +16,7 @@ export const usePublishPost = () => {
     mutationFn: (post: Post) => publishPost(client, post),
     onSuccess: (_, post) => {
       toast.success("Post published!")
+      toast.success("You are being redirected to the home page.")
       queryClient.invalidateQueries(["allPosts"])
       queryClient.invalidateQueries(["userPosts", post.author])
       router.push("/")

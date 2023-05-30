@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import type { InferGetStaticPropsType, GetStaticProps, GetStaticPaths } from "next"
 import type { PostWithAuthorDetails } from "@/lib/types"
 import { getAllUsers, getPost, getUserPosts, getUserProfile } from "@/lib/helpers"
+import Head from "next/head"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   // Fetch all the users
@@ -89,37 +90,42 @@ export default function PostPage({ post }: InferGetStaticPropsType<typeof getSta
   const { data } = usePost(id, post)
 
   return (
-    <div className="mt-16">
-      {data && (
-        <>
-          <div
-            className="mx-4 flex flex-wrap items-center gap-10 border-b border-zinc-200 pb-6
+    <>
+      <Head>
+        <title>HubShift - {data?.title}</title>
+      </Head>
+      <div className="mt-16">
+        {data && (
+          <>
+            <div
+              className="mx-4 flex flex-wrap items-center gap-10 border-b border-zinc-200 pb-6
           dark:border-zinc-700 sm:mx-8 md:ml-28 lg:ml-48"
-          >
-            <Link
-              href={`/user/${data.author.username}`}
-              className="flex cursor-pointer items-center gap-4 rounded-md text-lg font-semibold
-            hover:underline focus-visible:underline"
             >
-              <Image
-                src={data.author.avatar_url}
-                width={40}
-                height={40}
-                alt=""
-                draggable={false}
-                className="h-10 w-10 select-none rounded-full"
-              />
-              <span>{data.author.username}</span>
-            </Link>
-            <h1 className="text-left text-4xl font-extrabold text-zinc-900 dark:text-zinc-100">
-              {data.title}
-            </h1>
-          </div>
-          <div className="mx-4 sm:mx-8 md:ml-28 lg:ml-48">
-            {<MarkdownPreview markdown={data.content} />}
-          </div>
-        </>
-      )}
-    </div>
+              <Link
+                href={`/user/${data.author.username}`}
+                className="flex cursor-pointer items-center gap-4 rounded-md text-lg font-semibold
+            hover:underline focus-visible:underline"
+              >
+                <Image
+                  src={data.author.avatar_url}
+                  width={40}
+                  height={40}
+                  alt=""
+                  draggable={false}
+                  className="h-10 w-10 select-none rounded-full"
+                />
+                <span>{data.author.username}</span>
+              </Link>
+              <h1 className="text-left text-4xl font-extrabold text-zinc-900 dark:text-zinc-100">
+                {data.title}
+              </h1>
+            </div>
+            <div className="mx-4 sm:mx-8 md:ml-28 lg:ml-48">
+              {<MarkdownPreview markdown={data.content} />}
+            </div>
+          </>
+        )}
+      </div>
+    </>
   )
 }
