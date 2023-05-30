@@ -73,7 +73,7 @@ export const getStaticProps: GetStaticProps<{
     props: {
       post: postWithAuthorDetails,
     },
-    revalidate: 240,
+    revalidate: 10,
   }
 }
 

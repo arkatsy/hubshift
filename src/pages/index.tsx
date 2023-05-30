@@ -71,7 +71,7 @@ export const getStaticProps: GetStaticProps<FeedPageProps> = async () => {
     props: {
       posts: postsWithAuthorData,
     },
-    revalidate: 30,
+    revalidate: 5,
   }
 }
 

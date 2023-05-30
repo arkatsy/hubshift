@@ -43,7 +43,7 @@ export const getStaticProps: GetStaticProps<UserProfilePageProps> = async (ctxt)
       user: userData,
       posts: userPosts,
     },
-    revalidate: 45,
+    revalidate: 10,
   }
 }
 
